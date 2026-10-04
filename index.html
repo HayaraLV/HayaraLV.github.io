@@ -3,57 +3,298 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HayaraLV — С++ & Python Developer</title>
+    <title>HAYARA.SYS // Core Terminal</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #121214; color: #f0f0f3; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
-        .container { max-width: 650px; width: 100%; text-align: center; }
-        h1 { color: #0096ff; margin-bottom: 8px; font-size: 2.8rem; text-shadow: 0 0 15px rgba(0,150,255,0.4); font-weight: 800; }
-        .subtitle { color: #8a8a93; margin-bottom: 40px; font-size: 1.15rem; font-weight: 400; }
-        .card { background-color: #1e1e24; border: 1px solid #2d2d34; border-radius: 14px; padding: 28px; margin-bottom: 25px; text-align: left; transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s; }
-        .card:hover { transform: translateY(-4px); border-color: #0096ff; box-shadow: 0 10px 20px rgba(0, 150, 255, 0.1); }
-        .card h2 { color: #00b4ff; margin-bottom: 12px; font-size: 1.6rem; font-weight: 700; }
-        .card p { color: #c9c9d4; font-size: 1rem; line-height: 1.6; margin-bottom: 20px; }
-        .badge-container { margin-bottom: 20px; }
-        .badge { background-color: #121214; color: #0096ff; padding: 5px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; border: 1px solid #0096ff; display: inline-block; margin-right: 8px; text-transform: uppercase; }
-        .btn { display: block; text-align: center; background-color: #0096ff; color: #ffffff; text-decoration: none; padding: 14px; border-radius: 8px; font-weight: 700; font-size: 1rem; transition: background-color 0.2s; }
-        .btn:hover { background-color: #007acc; }
+        /* Senior-подход: Инициализируем глобальную дизайн-систему через CSS-переменные */
+        :root {
+            --bg-matrix: #0a0a0c;
+            --neon-blue: #00f0ff;
+            --neon-pink: #ff0055;
+            --text-main: #e2e2ec;
+            --text-dim: #626272;
+            --terminal-green: #39ff14;
+            --crt-glow: rgba(0, 240, 255, 0.15);
+        }
+
+        /* Обнуляем дефолтные отступы, включаем аппаратное ускорение */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Consolas', 'Courier New', monospace;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--bg-matrix);
+            color: var(--text-main);
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        /* Эффект старого CRT-монитора (полосы сканирования) поверх всего сайта */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 99999;
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+        }
+
+        /* Главный контейнер с поддержкой 3D перспективы */
+        .terminal-container {
+            max-width: 900px;
+            width: 100%;
+            perspective: 1000px;
+        }
+
+        /* Шапка терминала */
+        header {
+            text-align: left;
+            margin-bottom: 30px;
+            border-left: 3px solid var(--neon-blue);
+            padding-left: 20px;
+        }
+
+        /* Senior-эффект: Чистый CSS Glitch (анимация помех без JS) */
+        .glitch-title {
+            font-size: 3.5rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: var(--text-main);
+            position: relative;
+            letter-spacing: 2px;
+        }
+
+        .glitch-title::before, .glitch-title::after {
+            content: "HAYARA.SYS";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-matrix);
+        }
+        .glitch-title::before {
+            left: 2px; text-shadow: -2px 0 var(--neon-blue);
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim 5s infinite linear alternate-reverse;
+        }
+        .glitch-title::after {
+            left: -2px; text-shadow: -2px 0 var(--neon-pink);
+            clip: rect(85px, 450px, 140px, 0);
+            animation: glitch-anim2 5s infinite linear alternate-reverse;
+        }
+
+        .status-bar {
+            color: var(--terminal-green);
+            font-size: 0.9rem;
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+
+        /* Сетка Grid для карточек софта */
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+            transform-style: preserve-3d;
+        }
+
+        /* Лютая 3D-карточка в стиле киберпанк-интерфейса */
+        .cyber-card {
+            background: rgba(30, 30, 36, 0.6);
+            border: 1px solid var(--text-dim);
+            border-radius: 4px;
+            padding: 30px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Эффект неонового свечения и наклона при наведении */
+        .cyber-card:hover {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 20px var(--crt-glow);
+            transform: scale(1.02) translateZ(10px);
+        }
+
+        /* Угловые хакерские маркеры для карточек (чистый CSS) */
+        .cyber-card::before {
+            content: "";
+            position: absolute;
+            top: -1px; left: -1px;
+            width: 15px; height: 15px;
+            border-top: 2px solid var(--neon-blue);
+            border-left: 2px solid var(--neon-blue);
+        }
+
+        .cyber-card h3 {
+            color: var(--neon-blue);
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .cyber-card p {
+            color: var(--text-main);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        /* Контейнер для тегов */
+        .tech-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 25px;
+        }
+
+        .tag {
+            font-size: 0.75rem;
+            background: rgba(0, 240, 255, 0.05);
+            color: var(--neon-blue);
+            padding: 4px 10px;
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            text-transform: uppercase;
+        }
+
+        /* Мощная неоновая Senior-кнопка с эффектом пульсации */
+        .cyber-btn {
+            display: block;
+            width: 100%;
+            text-align: center;
+            background: transparent;
+            color: var(--neon-pink);
+            border: 1px solid var(--neon-pink);
+            padding: 12px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s ease;
+            box-shadow: inset 0 0 0 0 var(--neon-pink);
+        }
+
+        .cyber-btn:hover {
+            color: var(--bg-matrix);
+            background: var(--neon-pink);
+            box-shadow: 0 0 15px rgba(255, 0, 85, 0.4);
+            text-shadow: none;
+        }
+
+        /* Блок футера в виде бегущей строки или логов */
+        footer {
+            margin-top: 50px;
+            text-align: left;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            border-top: 1px dashed var(--text-dim);
+            padding-top: 20px;
+        }
+
+        /* Анимации для глитч-эффекта (оптимизировано через hardware-transform) */
+        @keyframes glitch-anim {
+            0% { clip: rect(31px, 9999px, 94px, 0); }
+            10% { clip: rect(112px, 9999px, 76px, 0); }
+            20% { clip: rect(85px, 9999px, 5px, 0); }
+            30% { clip: rect(27px, 9999px, 115px, 0); }
+            40% { clip: rect(73px, 9999px, 29px, 0); }
+            50% { clip: rect(118px, 9999px, 140px, 0); }
+            60% { clip: rect(39px, 9999px, 62px, 0); }
+            70% { clip: rect(5px, 9999px, 98px, 0); }
+            80% { clip: rect(131px, 9999px, 43px, 0); }
+            90% { clip: rect(54px, 9999px, 110px, 0); }
+            100% { clip: rect(92px, 9999px, 18px, 0); }
+        }
+
+        @keyframes glitch-anim2 {
+            0% { clip: rect(76px, 9999px, 116px, 0); }
+            11% { clip: rect(3px, 9999px, 42px, 0); }
+            22% { clip: rect(121px, 9999px, 85px, 0); }
+            33% { clip: rect(54px, 9999px, 131px, 0); }
+            44% { clip: rect(92px, 9999px, 12px, 0); }
+            55% { clip: rect(14px, 9999px, 73px, 0); }
+            66% { clip: rect(88px, 9999px, 144px, 0); }
+            77% { clip: rect(39px, 9999px, 56px, 0); }
+            88% { clip: rect(115px, 9999px, 91px, 0); }
+            100% { clip: rect(27px, 9999px, 105px, 0); }
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>HayaraLV</h1>
-    <div class="subtitle">Высокопроизводительный системный софт на чистом C++ WinAPI и Python</div>
+<div class="terminal-container">
+    <header>
+        <div class="glitch-title">HAYARA.SYS</div>
+        <div class="status-bar">> STATUS: ACTIVE // CORE_UNITS: ONLINE // STACK: C++ & PYTHON</div>
+    </header>
 
-    <!-- Карточка 1: TaskMan -->
-    <div class="card">
-        <h2>🚀 Ultimate Neon System Overlay</h2>
-        <p>Ультра-легкий прозрачный игровой оверлей для мониторинга ресурсов системы (CPU, RAM, GPU, UpTime) в реальном времени. Потребляет 0% ресурсов процессора, работает на чистом WinAPI и аппаратно пробивает полноэкранный режим F11 в играх (Minecraft и др.).</p>
-        <div class="badge-container">
-            <span class="badge">C++</span>
-            <span class="badge">Win32 API</span>
-            <span class="badge">0% CPU</span>
-            <span class="badge">FPS Guard</span>
+    <div class="grid-layout">
+        <!-- Карточка 1: TaskMan -->
+        <div class="cyber-card">
+            <h3>[01] TASKMAN.SYS <span>●</span></h3>
+            <p>Ультра-легкий прозрачный игровой оверлей для мониторинга ресурсов системы (CPU, RAM, GPU, UpTime) в реальном времени. Написан на чистом Win32 API, забирает данные напрямую из ядра и аппаратно пробивает полноэкранный F11 режим в играх.</p>
+            <div class="tech-tags">
+                <span class="tag">C++</span>
+                <span class="tag">Win32 API</span>
+                <span class="tag">Low-Level</span>
+                <span class="tag">0% CPU</span>
+            </div>
+            <!-- Сюда можешь вставить реальную ссылку на свой репо -->
+            <a href="https://github.com" target="_blank" class="cyber-btn">EXECUTE // REPO</a>
         </div>
-        <!-- Прямая ссылка на твой будущий или текущий оверлей -->
-        <a href="https://github.com/HayaraLV/" target="_blank" class="btn">Открыть на GitHub</a>
-    </div>
 
-    <!-- Карточка 2: CleanCode_Tool -->
-    <div class="card">
-        <h2>🧹 CleanCode_Tool — Dark Edition</h2>
-        <p>Ультра-быстрая всеядная утилита для полной очистки любых текстовых файлов и скриптов от пустых строк, лишних пробелов, табов и комментариев. Защищает строки внутри кавычек, поддерживает Drag & Drop и весит менее 200 КБ.</p>
-        <div class="badge-container">
-            <span class="badge">C++</span>
-            <span class="badge">GUI</span>
-            <span class="badge">Drag & Drop</span>
-            <span class="badge">Universal</span>
+        <!-- Карточка 2: CleanCode_Tool -->
+        <div class="cyber-card">
+            <h3>[02] CLEAN_CODE.EXE <span>●</span></h3>
+            <p>Высокопроизводительная всеядная CLI/GUI утилита для глубокой очистки исходного кода от табов, лишних пробелов, пустых строк и комментариев. Защищает активные строки внутри кавычек, поддерживает Drag & Drop мыши.</p>
+            <div class="tech-tags">
+                <span class="tag">C++</span>
+                <span class="tag">Win32 GUI</span>
+                <span class="tag">Tokenizing</span>
+                <span class="tag">&lt; 200 KB</span>
+            </div>
+            <!-- Сюда вставляешь точную ссылку на CleanCode_Tool -->
+            <a href="https://github.comCleanCode_Tool" target="_blank" class="cyber-btn">INITIALIZE // DOWNLOAD</a>
         </div>
-        <!-- Прямая ссылка на твой CleanCode_Tool из профиля -->
-        <a href="https://github.com" target="_blank" class="btn">Скачать .exe на GitHub</a>
-    </div>
-</div>
+
+        <!-- Карточка 3: HayaShell -->
+        <!-- Карточка 3: HayaShell (Исправленная и упакованная) -->
+        <div class="cyber-card">
+            <h3>[03] HAYASHELL.PY <span>●</span></h3>
+            <p>Кастомная линуксоподобная командная оболочка (Shell). Реализует парсинг аргументов, работу с переменными окружения, управление потоками ввода-вывода и системными процессами ОС.</p>
+            
+            <div class="tech-tags">
+                <span class="tag">Python</span>
+                <span class="tag">CLI Shell</span>
+                <span class="tag">Processes</span>
+                <span class="tag">Sys-Calls</span>
+            </div>
+            
+            <a href="https://github.com" target="_blank" class="cyber-btn">ACCESS // TERMINAL</a>
+        </div>
+    </div> <!-- Закрываем сетку grid-layout -->
+
+    <!-- Исправленный футер с правильным переносом строк -->
+    <footer>
+        <div>// LOG_STREAM: Connection established successfully.</div>
+        <div>// SECURITY_NOTICE: All binaries compiled with static runtime (/MT).</div>
+        <div>// CURRENT_YEAR: 2026 // USER: GUEST@HAYARA_NET</div>
+    </footer>
+</div> <!-- Закрываем terminal-container -->
 
 </body>
 </html>
